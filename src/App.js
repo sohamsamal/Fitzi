@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-function AvatarCreator() {
+function AvatarAndFaceSwap() {
   const [file, setFile] = useState(null);
   const [avatarName, setAvatarName] = useState('');
   const [height, setHeight] = useState('');
@@ -13,18 +13,71 @@ function AvatarCreator() {
   const [status, setStatus] = useState('Idle');
   const [avatarId, setAvatarId] = useState('');
   const [exportUrl, setExportUrl] = useState('');
-  const apiToken = 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJuSnVpYzVwbXk1T1hGSjVmY1RIQTdUNVktRHZVbVVOR2xxVHBqS0hDVnU4In0.eyJleHAiOjE3MDk5NjQwMDAsImlhdCI6MTcwOTkyODAwMSwiYXV0aF90aW1lIjoxNzA5OTI4MDAwLCJqdGkiOiJjNWNlNTAwNS0xY2IwLTQwMzMtYmU1OC0xYWI5NGJkY2U1ZmUiLCJpc3MiOiJodHRwczovL2F1dGgubWVzaGNhcGFkZS5jb20vcmVhbG1zL21lc2hjYXBhZGUtbWUiLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiNmIwNzcwMmYtZDNmOS00YmJlLWJkZWYtNGYyYTU5ZjMzMWQwIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoibWVzaGNhcGFkZS1tZSIsIm5vbmNlIjoiYWVjZjIwYzQtYmJjNy00ODk5LTgwZDAtZmQwNTg2YmZhYmIzIiwic2Vzc2lvbl9zdGF0ZSI6IjI5OWM3YjQzLTdlYTMtNDY2Yi1iMTllLTc1MWEyMDU2NDQwZSIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiaHR0cHM6Ly9tZXNoY2FwYWRlLmNvbSIsImh0dHBzOi8vbWUubWVzaGNhcGFkZS5jb20iLCJodHRwczovL21lc2hjYXBhZGUubWUiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIm9mZmxpbmVfYWNjZXNzIiwiZGVmYXVsdC1yb2xlcy1nY21jIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBlbWFpbCBwcm9maWxlIiwic2lkIjoiMjk5YzdiNDMtN2VhMy00NjZiLWIxOWUtNzUxYTIwNTY0NDBlIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJuYW1lIjoiRml0emkgU3RhcnR1cCIsInByZWZlcnJlZF91c2VybmFtZSI6ImZpdHppLnN0YXJ0dXBAZ21haWwuY29tIiwiZ2l2ZW5fbmFtZSI6IkZpdHppIiwiZmFtaWx5X25hbWUiOiJTdGFydHVwIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0tJVjd4c202ZHRKSTV3SVNXbzBHV2pzTUpvMDdZWm80Sm5YdmozWENRbT1zOTYtYyIsImVtYWlsIjoiZml0emkuc3RhcnR1cEBnbWFpbC5jb20ifQ.klVMKN535vO8z_VSlUwjOlkSwapqaQHYBmZGxSxbpKESrVJsMCGCF9ZyiCNrrHE_kT1HX2mkkSvAk2n3vMg0kuKEIxrtH1TFZBz8185SgTobsOLnEIZN6tqyvkh3FzOhBLum2e8KVlzftRN6FmV3JhYrhtE69XY1Sxe-qahXWQw536uX-oIltBj8lYd1aSxpgpSFrb_AafJmQ8i8wR6mgayoQx1AuNkeND4EX2Dmw6BmHjfTEZroQVCE9qgdY2pWbeNHuPAUATDBFHwQBa80b0Zm4Fn6sF4amsW-Cl3j2nJB_QU-aoqLzqlwKqATBC6yYZ6Bl6Ohpun_BX20BV9Btg';
+  const [resultImage, setResultImage] = useState(null);
   const viewerRef = useRef(null);
 
+  const apiToken = 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJuSnVpYzVwbXk1T1hGSjVmY1RIQTdUNVktRHZVbVVOR2xxVHBqS0hDVnU4In0.eyJleHAiOjE3MTA1NzUxNjQsImlhdCI6MTcxMDU0NTE2MSwiYXV0aF90aW1lIjoxNzEwNTM5MTY0LCJqdGkiOiI1NDAzN2M4MC04NmU3LTRiZDctODcyOC0wMTkwYzA5ZWNhOTMiLCJpc3MiOiJodHRwczovL2F1dGgubWVzaGNhcGFkZS5jb20vcmVhbG1zL21lc2hjYXBhZGUtbWUiLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiOWNlYzI3ZjQtMDY3Ny00OGI4LWE3ODUtZWM5NzJjODJlY2MyIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoibWVzaGNhcGFkZS1tZSIsIm5vbmNlIjoiMjZhZjExNzUtMTVmMi00MWE4LTg3YWYtNjQ1ZjQ3NzJmNDIwIiwic2Vzc2lvbl9zdGF0ZSI6IjdiMmYwMGFiLWE4MTAtNDJjYS04MTA0LTkzNTY5ZmRhOTliOSIsImFjciI6IjAiLCJhbGxvd2VkLW9yaWdpbnMiOlsiaHR0cHM6Ly9tZXNoY2FwYWRlLmNvbSIsImh0dHBzOi8vbWUubWVzaGNhcGFkZS5jb20iLCJodHRwczovL21lc2hjYXBhZGUubWUiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIm9mZmxpbmVfYWNjZXNzIiwiZGVmYXVsdC1yb2xlcy1nY21jIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBlbWFpbCBwcm9maWxlIiwic2lkIjoiN2IyZjAwYWItYTgxMC00MmNhLTgxMDQtOTM1NjlmZGE5OWI5IiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJuYW1lIjoiSmFzb24gTGluIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiamFzb25saW4yOTc2NEBnbWFpbC5jb20iLCJnaXZlbl9uYW1lIjoiSmFzb24iLCJmYW1pbHlfbmFtZSI6IkxpbiIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NLS3piTVlHOXU0Q1J4LVNZdEw4dmhPVlZvZzZJa01iUHVuUWRZZmJsTG49czk2LWMiLCJlbWFpbCI6Imphc29ubGluMjk3NjRAZ21haWwuY29tIn0.kqvZFztOjwbvFXzqXdCQBjPPrFKtS_2Qe1LP2KxnG-izF1fqZY6trjrZkuCZHYzxdclcT9nJ1xi4FONxBmf6UXseUYS2cL1f_Q5lKow4g2Y4_PVQmyGzDqOKmOmvH3Nsr-IlQ-KIMdsg8gxoTYI7ACb_8JnMPbY0_36h1FMdjzDkT8Ds2TwQSuvciyZntnGnIJ3RMpwltxqsJRpBT_nAQSfafRV8SHfZlyBAm1b4_n1fQOITCuab1so3lshv-B_q8kgIObDLMJqQFMxfGwC2ML_BfwNQSrljloQFd6aT7HsoNmAfEF8sRhMsMjptomYcsWKHzzZUkHrX9nKCBrGmsw';
+  const faceSwapApiToken = 'user:893-aelqV9NKacC4TTkmhVc1l';
+
+  const targetImageUrls = {
+    male: 'https://i.ibb.co/6XkxwPM/male-dark.png',
+    female: 'https://i.ibb.co/fqyjSKK/woman-light.png',
+  };
+
   useEffect(() => {
-    if (exportUrl) {
-      loadOBJModel(exportUrl);
+    if (exportUrl && resultImage) { // Ensure both the model URL and resultImage are ready
+        loadOBJModel(exportUrl);
     }
-  }, [exportUrl]);
+}, [exportUrl, resultImage]); // Add resultImage as a dependency  
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
+
+  const fetchImageAsBlob = async (imageUrl) => {
+    const response = await fetch(imageUrl);
+    const imageBlob = await response.blob();
+    return new File([imageBlob], 'target.jpg', { type: 'image/jpeg' });
+  };
+
+  const performFaceSwap = async (sourceImage) => {
+    try {
+      const targetImageUrl = gender === 'female' ? targetImageUrls.female : targetImageUrls.male;
+      const targetImageBlob = await fetchImageAsBlob(targetImageUrl);
+
+      let formData = new FormData();
+      formData.append('channel', '1218277318921949369');
+      formData.append('idname', 'source');
+      formData.append('image', sourceImage);
+
+      await axios.post('https://api.useapi.net/v1/faceswap/saveid', formData, {
+        headers: {
+          'Authorization': `Bearer ${faceSwapApiToken}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      formData = new FormData();
+      formData.append('channel', '1218277318921949369');
+      formData.append('idname', 'source');
+      formData.append('image', targetImageBlob);
+
+      const response = await axios.post('https://api.useapi.net/v1/faceswap/swapid', formData, {
+        headers: {
+          'Authorization': `Bearer ${faceSwapApiToken}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data && response.data.attachments.length > 0) {
+        setResultImage(response.data.attachments[0].url);
+        return response.data.attachments[0].url;
+      }
+    } catch (error) {
+      console.error('Face swap error:', error);
+    }
+  };
+
 
   const createAvatar = async () => {
     setStatus('Creating Avatar...');
@@ -154,10 +207,13 @@ const handleSubmit = async (event) => {
 
   setStatus('Processing...');
   try {
+    const faceSwappedImage = await performFaceSwap(file);
+    const newFile = await fetchImageAsBlob(faceSwappedImage); // Convert the swapped image URL back to a File object for uploading
+    setFile(newFile); // Update the file state with the face-swapped image
     const newAvatarId = await createAvatar();
     const uploadUrl = await getUploadLink(newAvatarId);
-    await uploadImage(uploadUrl);
-    await startFittingProcess(newAvatarId); // Pass additional parameters to the fitting process
+    await uploadImage(uploadUrl, newFile); // Pass the face-swapped image to the upload function
+    await startFittingProcess(newAvatarId);
   } catch (error) {
     console.error('Error in the process:', error);
     setStatus('Error in Process');
@@ -165,36 +221,63 @@ const handleSubmit = async (event) => {
 };
 
 
+
 function loadOBJModel(url) {
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xcccccc); // Change background to a lighter color
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x202020); // Dark background to help colors stand out
 
-    const camera = new THREE.PerspectiveCamera(75, viewerRef.current.clientWidth / viewerRef.current.clientHeight, 0.1, 1000);
-    camera.position.set(0, 5, 10); // Adjust camera position
+  const camera = new THREE.PerspectiveCamera(75, viewerRef.current.clientWidth / viewerRef.current.clientHeight, 0.1, 10000);
+  camera.position.set(0, 0, 5);
 
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(viewerRef.current.clientWidth, viewerRef.current.clientHeight);
-    viewerRef.current.appendChild(renderer.domElement);
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.outputEncoding = THREE.sRGBEncoding; // Important for color fidelity
+  renderer.setSize(viewerRef.current.clientWidth, viewerRef.current.clientHeight);
+  viewerRef.current.appendChild(renderer.domElement);
 
-    // Add lighting
-    const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
-    scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Default white light
-    directionalLight.position.set(0, 1, 1).normalize();
-    scene.add(directionalLight);
+  // Vibrant lighting setup
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  keyLight.position.set(-100, 0, 100);
+  const fillLight = new THREE.DirectionalLight(0xffffff, 1.0);
+  fillLight.position.set(100, 0, 100);
+  const backLight = new THREE.DirectionalLight(0xffffff, 1.0);
+  backLight.position.set(100, 0, -100).normalize();
 
-    new OrbitControls(camera, renderer.domElement);
+  scene.add(keyLight, fillLight, backLight);
 
-    new OBJLoader().load(url, (obj) => {
-        obj.position.set(0, 0, 0); // Ensure model is centered
-        scene.add(obj);
-        animate();
+  const controls = new OrbitControls(camera, renderer.domElement);
+
+  const textureLoader = new THREE.TextureLoader();
+  const texture = textureLoader.load(resultImage);
+  texture.encoding = THREE.sRGBEncoding; // Use sRGB encoding for texture
+
+  new OBJLoader().load(url, (obj) => {
+    obj.traverse(function (child) {
+      if (child instanceof THREE.Mesh) {
+        child.material.map = texture;
+        child.material.color.convertSRGBToLinear(); // Properly converts the color for sRGB encoded textures
+        child.material.needsUpdate = true;
+      }
     });
 
-    function animate() {
-        requestAnimationFrame(animate);
-        renderer.render(scene, camera);
-    }
+    obj.position.y = -1; // Center the model
+    scene.add(obj);
+
+    // Update the camera to fit the object
+    const box = new THREE.Box3().setFromObject(obj);
+    const center = box.getCenter(new THREE.Vector3());
+    camera.lookAt(center);
+
+    controls.target.set(center.x, center.y, center.z);
+    controls.update();
+
+    animate();
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
 }
 
 
@@ -214,9 +297,14 @@ return (
           <button type="submit">Create Avatar</button>
       </form>
       <div>Status: {status}</div>
-      <div ref={viewerRef} style={{ width: '600px', height: '400px', background: '#aaa' }}></div>
+      <div ref={viewerRef} style={{ width: '100vw', height: '100vh', background: '#000000' }}></div>
+      {resultImage && (
+        <>
+          <img src={resultImage} alt="Result" style={{ width: '0px', height: '0px' }} />
+        </>
+      )}
   </div>
 );
 }
 
-export default AvatarCreator;
+export default AvatarAndFaceSwap;

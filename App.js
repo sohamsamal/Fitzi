@@ -1,20 +1,53 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { View, TextInput, StyleSheet } from 'react-native';
 
-export default function App() {
+const SimpleTextInput = () => {
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [gender, setGender] = useState('');
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+      <TextInput
+        style={styles.input}
+        placeholder="Height (cm)"
+        keyboardType="numeric"
+        value={height}
+        onChangeText={text => setHeight(text)}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Weight (kg)"
+        keyboardType="numeric"
+        value={weight}
+        onChangeText={text => setWeight(text)}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Gender"
+        value={gender}
+        onChangeText={text => setGender(text)}
+      />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center'
   },
+  input: {
+    width: '80%',
+    height: 40,
+    marginVertical: 8,
+    borderWidth: 1,
+    padding: 10,
+  }
 });
+<script type="text/javascript">
+console.log("hello world");
+</script>
+
+export default SimpleTextInput;

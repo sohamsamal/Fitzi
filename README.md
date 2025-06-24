@@ -1,6 +1,6 @@
 # Fitzi - Bringing Personalized Fitting Rooms to Your Phone (DEPRECATED)
 
-(We are now using AI software to enhance the rendering capabilities. However, we cannot democratize this code.)
+(We are now using AI software to enhance the rendering capabilities. However, we cannot democratize this code. What you see below is a high-level mockup of Fitzi's capabilities and workflow.)
 
 This project uses React and the meschcapade API to take in an image, sends it to the api server, loads and fits a 3d rendering of the person-image, and then exports it back to the user. 
 
